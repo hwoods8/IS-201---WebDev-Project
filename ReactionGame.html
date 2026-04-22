@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Reaction Game</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 50px;
+      background: #f4f4f4;
+    }
+
+    #box {
+      width: 220px;
+      height: 220px;
+      margin: 40px auto;
+      background: gray;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      color: white;
+      border-radius: 12px;
+      user-select: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+    }
+
+    #scoreboard {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Reaction Time Game</h1>
+  <p>Click ONLY when the box turns GREEN</p>
+
+  <button onclick="startGame()">Start Game</button>
+
+  <div id="scoreboard">Score: 0 | Level: 1</div>
+
+  <div id="box">Click Start</div>
+
+  <p id="result"></p>
+
+  <script>
+    let score = 0;
+    let level = 1;
+
+    let canClick = false;
+    let startTime;
+    let timeout;
+
+    const box = document.getElementById("box");
+    const result = document.getElementById("result");
+    const scoreboard = document.getElementById("scoreboard");
+
+    function updateBoard() {
+      scoreboard.innerText = "Score: " + score + " | Level: " + level;
+    }
+
+    function startGame() {
+      clearTimeout(timeout);
+
+      canClick = false;
+      box.style.background = "gray";
+      box.innerText = "Wait...";
+      result.innerText = "";
+
+      let delay = Math.random() * 2000 + 1000;
+
+      timeout = setTimeout(() => {
+        box.style.background = "green";
+        box.innerText = "CLICK!";
+        startTime = Date.now();
+        canClick = true;
+      }, delay);
+    }
+
+    function fail(message) {
+      score = 0;
+      level = 1;
+      updateBoard();
+
+      canClick = false;
+
+      box.style.background = "red";
+      box.innerText = "FAILED";
+      result.innerText = "❌ " + message;
+
+      clearTimeout(timeout);
+
+      setTimeout(() => {
+        box.style.background = "gray";
+        box.innerText = "Click Start";
+      }, 1200);
+    }
+
+    box.onclick = function () {
+      // too early click
+      if (!canClick && box.style.background !== "green") {
+        fail("Too early!");
+        return;
+      }
+
+      // correct click
+      if (canClick) {
+        let reaction = Date.now() - startTime;
+
+        score++;
+        level++;
+
+        updateBoard();
+
+        result.innerText = "✅ " + reaction + " ms";
+
+        box.style.background = "pink";
+        box.innerText = "Good!";
+
+        canClick = false;
+
+        setTimeout(startGame, 900);
+      }
+    };
+  </script>
+
+</body>
+</html>
